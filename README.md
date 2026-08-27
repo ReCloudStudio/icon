@@ -32,3 +32,15 @@ uv run main.py     # 读取 icon.svg，写入 output/icon-{尺寸}.png
 magick icon.png -alpha extract -threshold 30% -negate shape.pbm
 potrace shape.pbm -s --opaque --alphamax 1 --turdsize 2   # 得干净轮廓，替换 fill 为渐变
 ```
+
+## 带文字图标（图标 + 字标）
+
+横排 logo lockup，含 `ReCloud` 与 `ReCloud Studio` 两种字标，文字使用 DejaVu Sans Bold，填充品牌蓝 `#1E63CE`。
+
+- `main_text.py`：用 `icon.svg` 的轮廓配合 `cairosvg` + ImageMagick 生成
+- `icon-text.svg` / `icon-text-studio.svg`：矢量 lockup
+- `output/icon-text-{尺寸}.png` / `output/icon-text-studio-{尺寸}.png`：多尺寸 PNG（宽度为尺寸值，保持比例）
+
+```bash
+uv run main_text.py   # 生成 icon-text*.svg 与 output/icon-text*-{尺寸}.png
+```
