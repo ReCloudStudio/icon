@@ -1,15 +1,19 @@
 # ReCloud 图标源仓库
 
-本仓库存放 ReCloud Studio 品牌图标的源文件与生成脚本，是 `icon-showcase` 展示站的同步上游。展示站通过 GitHub raw 拉取本仓库的 `output/` 资产，因此本仓库的变更需推送后才对展示站可见。
+本仓库存放 ReCloud Studio 各项目的品牌图标源文件与生成脚本，是多项目图标聚合存储，也是 `icon-showcase` 展示站的同步上游。展示站通过 GitHub raw 拉取本仓库的 `output/` 资产，因此本仓库的变更需推送后才对展示站可见。
 
-## 关键文件
+## 目录结构
 
-- `icon.svg`：主图标，potrace 提取轮廓 + 手动垂直蓝渐变（`linearGradient id=g`，顶浅底深）。仓库核心资产。
-- `icon.png`：1254×1254 原始栅格源（透明背景）。
-- `main.py`：用 cairosvg 从 `icon.svg` 导出 `output/icon-{16,32,48,64,96,128,256,512}.png`。
-- `main_text.py`：合成横排字标（`icon-text.svg`/`icon-text-studio.svg` 及对应多尺寸 PNG），ImageMagick + DejaVuSans-Bold。
-- `icon-text.svg` / `icon-text-studio.svg`：带文字图标源。
-- `output/`：生成的位图与 SVG（25 个文件），被展示站 `scripts/sync.mjs` 拉取。
+- `projects/<project>/`：各项目图标源文件（`*.svg`，ReCloud 另含原始位图 `icon.png`）。
+- `output/<project>/`：生成的多尺寸 PNG + SVG 副本，被展示站 `scripts/sync.mjs` 拉取。
+- `output/manifest.json`：资产清单元数据（项目 → 资产 → 文件列表）。
+- `main.py`：遍历 `projects/`，把每个 `*.svg` 导出为 `output/<project>/<name>-{16,32,48,64,96,128,256,512}.png`，并复制 SVG、生成 `manifest.json`。
+- `main_text.py`：生成 ReCloud 横排字标 SVG（`projects/recloud/icon-text*.svg`），ImageMagick + DejaVuSans-Bold。
+
+## 已有项目
+
+- `projects/recloud/`：ReCloud 主图标，potrace 提取轮廓 + 手动垂直蓝渐变（`linearGradient id=g`，顶浅底深）。含 `icon.svg` / `icon.png`（1254×1254 原始栅格源）/ `icon-text.svg` / `icon-text-studio.svg`。
+- `projects/webhooker/`：WebHooker 图标，圆角矩形 + 白色 hook 符号（`#4f46e5`）。
 
 ## 环境
 
@@ -19,8 +23,8 @@
 
 ## 常用命令
 
-- `uv run main.py`：重新导出主图标 PNG 到 `output/`。
-- `uv run main_text.py`：重新导出带文字字标。
+- `uv run main_text.py`：重新生成 ReCloud 字标 SVG 到 `projects/recloud/`。
+- `uv run main.py`：导出所有项目到 `output/`，并写入 `output/manifest.json`。
 - `bun run sync`（在 icon-showcase 仓库）：从本仓库拉取最新资产。
 
 ## 约定
@@ -28,3 +32,4 @@
 - 提交需 GPG 签名（`git commit -S`）。
 - 修改渐变/形状后须重新导出 `output/` 并推送，否则展示站同步到的仍是旧资产。
 - 渐变方向保持垂直单调（顶 `#C8E0FD` → 底 `#3069C9`），不要引入环形或对角线分段。
+- 新增项目：创建 `projects/<project>/icon.svg`，运行 `uv run main.py`。

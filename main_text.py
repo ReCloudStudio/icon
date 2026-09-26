@@ -1,11 +1,8 @@
 import glob
-import os
 import subprocess
-import sys
 
-import cairosvg
-
-ICON_SVG = "icon.svg"
+ICON_DIR = "projects/recloud"
+ICON_SVG = f"{ICON_DIR}/icon.svg"
 FONT_CANDIDATES = glob.glob("/nix/store/*dejavu-fonts*/share/fonts/truetype/DejaVuSans-Bold.ttf")
 FONT = FONT_CANDIDATES[0] if FONT_CANDIDATES else "DejaVu Sans"
 
@@ -13,7 +10,6 @@ ICON_DISP = 256
 GAP = 64
 PAD = 28
 F = 200
-SIZES = [16, 32, 48, 64, 96, 128, 256, 512]
 
 GRAD_TOP = "#C8E0FD"
 GRAD_BOTTOM = "#3069C9"
@@ -73,31 +69,10 @@ def build_svg(word, tw, th, path):
         f.write(svg)
 
 
-def render_pngs(word, tw, th, out_prefix):
-    cairosvg.svg2png(url=ICON_SVG, write_to="/tmp/icon256.png",
-                     output_width=ICON_DISP, output_height=ICON_DISP)
-    subprocess.run(
-        ["magick", "-background", "none", "-fill", TEXT_FILL, *font_args(),
-         "-pointsize", str(F), "label:" + word, "/tmp/text_label.png"],
-        check=True,
-    )
-    subprocess.run(
-        ["magick", "-background", "none", "/tmp/icon256.png", "/tmp/text_label.png",
-         "+smush", str(GAP), "/tmp/lockup.png"], check=True,
-    )
-    for s in SIZES:
-        subprocess.run(
-            ["magick", "/tmp/lockup.png", "-resize", str(s),
-             f"output/{out_prefix}-{s}.png"], check=True,
-        )
-
-
 def main():
-    os.makedirs("output", exist_ok=True)
     for word, prefix in [("ReCloud", "icon-text"), ("ReCloud Studio", "icon-text-studio")]:
         tw, th = measure(word)
-        build_svg(word, tw, th, f"{prefix}.svg")
-        render_pngs(word, tw, th, prefix)
+        build_svg(word, tw, th, f"{ICON_DIR}/{prefix}.svg")
         print(f"{prefix}: text {tw}x{th}")
 
 
